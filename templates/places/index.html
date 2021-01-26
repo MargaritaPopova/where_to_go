@@ -1,0 +1,315 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Куда пойти — Москва глазами Артёма</title>
+
+  <link rel="shortcut icon" href="favicon.png" type="image/png">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+  <link rel="stylesheet" href="{% static 'places/leaflet-sidebar.css'%}"/>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://unpkg.com/@ansur/leaflet-pulse-icon@0.1.1/dist/L.Icon.Pulse.css">
+
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
+
+    html, body, #map {
+      height: 100%;
+    }
+
+    .place-description img {
+      max-width: 100%;
+    }
+
+    .sidebar-content {
+      padding: 14px 20px;
+      height: 100%;
+    }
+    .select-place-prompt{
+      color: red;
+      width: 100px;
+    }
+  </style>
+  <script id="places-geojson" type="application/json">
+    {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [37.62, 55.793676]
+          },
+          "properties": {
+            "title": "«Легенды Москвы",
+            "placeId": "moscow_legends",
+            "detailsUrl": "{% static 'places/places/moscow_legends.json'%}"
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [37.64, 55.753676]
+          },
+          "properties": {
+            "title": "Крыши24.рф",
+            "placeId": "roofs24",
+            "detailsUrl": "{% static 'places/places/roofs24.json'%}"
+          }
+        }
+      ]
+    }
+  </script>
+
+  <script id="app-template" type="text/template">
+    <div v-bind:class="{'sidebar-content': 1, 'bg-white': selectedPlace, 'bg-secondary': !selectedPlace}">
+      <div v-if="promptVisible" class="d-flex flex-column justify-content-center align-items-center" style="height: 100%;">
+        <img class="d-block select-place-prompt mb-4" src="{% static 'places/hand-pointer-regular.svg' %}" alt="Select place">
+        <h4>Выберите место на карте</h4>
+      </div>
+
+      <div class="align-items-center justify-content-center d-flex" v-if="loading" style="height: 100%;">
+        <div class="spinner-grow text-light" style="width: 3rem; height: 3rem;" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+
+      <div class="place-description" v-if="selectedPlace">
+
+        <img v-if="mainPhotoSrc" v-bind:src="mainPhotoSrc" class="d-block shadow mb-3 rounded" v-bind:alt="selectedPlace.title">
+
+        <h5 class="mb-3">{% verbatim %}{{ selectedPlace.title }}{% endverbatim %}</h5>
+
+        <p>{% verbatim %}{{ selectedPlace.short_description }}{% endverbatim %}</p>
+
+        <div id="place-photos" class="carousel slide mb-3 shadow" data-ride="carousel" data-interval="5000">
+          <ol class="carousel-indicators">
+            <template v-for="(img, index) in carouselImgs" :key="img">
+              <li v-on:click="handlePhotosClick(index)" v-bind:class="{active: index==0}"></li>
+            </template>
+          </ol>
+          <div class="carousel-inner">
+            <template v-for="(img, index) in carouselImgs" :key="img">
+              <div v-bind:class="{'carousel-item bg-light': 1, active: index==0}">
+                <img v-bind:src="img" class="d-block w-100" v-bind:alt="selectedPlace.title">
+              </div>
+            </template>
+          </div>
+          <template v-if="carouselImgs.length">
+            <a class="carousel-control-prev" v-on:click="handlePhotosClick('prev')" role="button">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" v-on:click="handlePhotosClick('next')" role="button">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="sr-only">Next</span>
+            </a>
+          </template>
+        </div>
+
+        <div v-html="selectedPlace.long_description"></div>
+      </div>
+    </div>
+  </script>
+
+</head>
+<body>
+  <div id="sidebar">
+    <div id="sidebar-app"></div>
+  </div>
+
+  <div id="map"></div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-providers/1.10.1/leaflet-providers.min.js" integrity="sha256-EV/ywRtxUOBICwOsLtPpYEONoBF6g+ShAcLX1Ts48GA=" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/leaflet-control-custom@1.0.0/Leaflet.Control.Custom.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/loglevel/1.6.8/loglevel.min.js" integrity="sha256-O/iFn3B3kEV/q5PPVW8TVpRhoywaK7NN4UjdnBO9DXo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js" integrity="sha256-ngFW3UnAN0Tnm76mDuu7uUtYEcG3G5H1+zioJw3t+68=" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@ansur/leaflet-pulse-icon@0.1.1/dist/L.Icon.Pulse.js"></script>
+
+  <script src="{% static 'places/leaflet-sidebar.js' %} "></script>
+
+  <script>
+    var map = L.map('map');
+    map.setView([55.753989, 37.623191], 11);
+
+    L.tileLayer.provider('OpenStreetMap.Mapnik').addTo(map);
+
+    var sidebar = L.control.sidebar('sidebar', {
+      closeButton: true,
+      position: 'right'
+    });
+    map.addControl(sidebar);
+
+    // FIXME should be hidden in production mode
+    L.control.custom({
+      position: 'bottomleft',
+      content: `
+        <label>
+            <input name="debug" type="checkbox" ${log.getLevel()<=1 && 'checked'}/>
+            Отладка
+        </label>`,
+      style: {
+        padding: '10px',
+        background: 'rgba(255, 255, 255, 0.7)',
+      },
+      events: {
+        click: event => {
+          if (event.target.name == 'debug'){
+            let level = event.target.checked && 'debug' || 'warn';
+            log.setLevel(level);
+            console.log(`Set log level: ${level}`)
+          }
+        },
+      }
+    }).addTo(map);
+
+    function loadJSON(elementId){
+      let element = document.getElementById(elementId);
+
+      if (!element){
+        log.error(`Not found element with id '${elementId}'.`)
+        return null;
+      }
+
+      return JSON.parse(element.textContent);
+    }
+
+    let places = loadJSON('places-geojson');
+    log.debug('Load GeoJSON for places', places);
+
+
+    L.geoJSON(places, {
+        pointToLayer: function(geoJsonPoint, latlng) {
+          if (geoJsonPoint.geometry.type != "Point"){
+            return
+          }
+
+          let color = geoJsonPoint.properties.color || 'red';
+
+          var pulsingIcon = L.icon.pulse({
+            iconSize: [12, 12],
+            color: color,
+            fillColor: color,
+            heartbeat: 2.5,
+          });
+
+          let marker = L.marker(latlng, {
+            icon: pulsingIcon,
+            riseOnHover: true,
+          });
+
+          marker.bindTooltip(geoJsonPoint.properties.title);
+          marker.bindPopup(function (layer) {
+            return geoJsonPoint.properties.title;
+          })
+
+          marker.on('click', function(event){
+            log.debug('Feature selected', geoJsonPoint);
+            sidebar.show();
+            loadPlaceInfo(geoJsonPoint.properties.placeId, geoJsonPoint.properties.detailsUrl);
+          });
+          return marker;
+        }
+    }).addTo(map);
+
+    var sidebarApp = new Vue({
+      el: '#sidebar-app',
+      template: document.getElementById('app-template').innerHTML,
+      data: {
+        loadingPlaceId: null,
+        selectedPlace: null,  // object with attributes specified below
+          // title
+          // placeId
+          // imgs
+          // short_description
+          // long_description
+      },
+      computed: {
+        promptVisible: function () {
+          return !this.loading && !this.selectedPlace;
+        },
+        loading: function () {
+          return this.loadingPlaceId !== null;
+        },
+        mainPhotoSrc: function () {
+          if (!this.selectedPlace || !this.selectedPlace.imgs.length){
+            return null;
+          }
+          return this.selectedPlace.imgs[0];
+        },
+        carouselImgs: function () {
+          if (!this.selectedPlace || !this.selectedPlace.imgs.length){
+            return [];
+          }
+          return this.selectedPlace.imgs.slice(1);
+        },
+      },
+      updated: function () {
+        this.$nextTick(function () {
+          // Код, будет запущен только после обновления всех представлений
+          $('#place-photos').carousel();
+        })
+      },
+      methods: {
+        handlePhotosClick: function(slideId='next') {
+          // default event handlers of Bootstrap Carousel conflict with Leaflet
+          // so custom handler will mimic expected carousel behaviour
+          $('#place-photos').carousel(slideId);
+        }
+      },
+    });
+
+    map.on('click', function () {
+      sidebarApp.selectedPlace = null;
+      sidebarApp.loadingPlaceId = null;
+    })
+
+    async function loadPlaceInfo(placeId, detailsUrl){
+      sidebarApp.selectedPlace = null;
+      sidebarApp.loadingPlaceId = placeId;
+
+      try {
+        let response = await fetch(detailsUrl);
+
+        if (!response.ok){
+          return;
+        }
+
+        let data = await response.json();
+
+        if (sidebarApp.loadingPlaceId != placeId){
+          // Place loading was cancelled by user
+          return
+        }
+
+        sidebarApp.selectedPlace = {
+          title: data.title,
+          placeId: placeId,
+          imgs: data.imgs || [],
+          short_description: data.description_short,
+          long_description: data.description_long,
+        };
+      } finally {
+        if (sidebarApp.loadingPlaceId == placeId){
+          sidebarApp.loadingPlaceId = null;
+        }
+      }
+    }
+  </script>
+</body>
+</html>
