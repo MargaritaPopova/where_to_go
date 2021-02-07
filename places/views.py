@@ -1,3 +1,6 @@
+import os
+
+from django.http import JsonResponse
 from django.shortcuts import render
 from .models import Location, Image
 from django.core import serializers
@@ -5,6 +8,8 @@ import json
 
 
 def get_detailsUrl(location):
+    details_filename = f'places/static/places/places/{location.properties_placeId}.json'
+
     imgs = Image.objects.filter(location=location)
     details_url = {
         "title": location.title,
@@ -16,10 +21,13 @@ def get_detailsUrl(location):
             "lat": float(location.lat)
         }
     }
-    return details_url
+    if not os.path.isfile(details_filename):
+        with open(details_filename, 'w') as f:
+            f.write(json.dumps(details_url, ensure_ascii=False, indent=4))
 
 
 def convert_to_geojson(location):
+    get_detailsUrl(location)
     geo_dict = \
         {
             "type": "Feature",
@@ -30,7 +38,7 @@ def convert_to_geojson(location):
             "properties": {
                 "title": location.properties_title,
                 "placeId": location.properties_placeId,
-                "detailsUrl": get_detailsUrl(location)
+                "detailsUrl": f'static/places/places/{location.properties_placeId}.json'
             }
         }
     return geo_dict
