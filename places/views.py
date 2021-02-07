@@ -1,13 +1,11 @@
-import os
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from .models import Location, Image
 import json
 
 
 def get_detailsUrl(location):
-    details_filename = f'places/static/places/places/{location.properties_placeId}.json'
-
     imgs = Image.objects.filter(location=location)
     details_url = {
         "title": location.title,
@@ -19,9 +17,6 @@ def get_detailsUrl(location):
             "lat": float(location.lat)
         }
     }
-    if not os.path.isfile(details_filename):
-        with open(details_filename, 'w') as f:
-            f.write(json.dumps(details_url, ensure_ascii=False, indent=4))
     return details_url
 
 
@@ -37,7 +32,7 @@ def convert_to_geojson(location):
             "properties": {
                 "title": location.properties_title,
                 "placeId": location.properties_placeId,
-                "detailsUrl": f'static/places/places/{location.properties_placeId}.json'
+                "detailsUrl": reverse('places:location_json', kwargs={'pk': location.id})
             }
         }
     return geo_dict
