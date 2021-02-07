@@ -1,9 +1,7 @@
 import os
-
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Location, Image
-from django.core import serializers
 import json
 
 
@@ -24,6 +22,7 @@ def get_detailsUrl(location):
     if not os.path.isfile(details_filename):
         with open(details_filename, 'w') as f:
             f.write(json.dumps(details_url, ensure_ascii=False, indent=4))
+    return details_url
 
 
 def convert_to_geojson(location):
@@ -55,3 +54,11 @@ def index(request):
     context['locations'] = json.dumps(locations, ensure_ascii=False)
 
     return render(request, 'places/index.html', context)
+
+
+def json_api(request, pk):
+    location = get_object_or_404(Location, id=pk)
+    return JsonResponse(get_detailsUrl(location), json_dumps_params={
+        'ensure_ascii': False,
+        'indent': 4,
+    })
