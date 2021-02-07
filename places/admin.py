@@ -5,6 +5,8 @@ from .models import Location, Image
 class ImageInline(admin.TabularInline):
     model = Image
     extra = 1
+    fields = ('image', 'preview', 'order_no')
+    readonly_fields = ("preview", )
 
 
 class LocationAdmin(admin.ModelAdmin):

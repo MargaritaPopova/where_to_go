@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.html import format_html
 
 
 class Location(models.Model):
@@ -21,3 +22,9 @@ class Image(models.Model):
 
     def __str__(self):
         return f'Image {self.order_no} for {self.location}'
+
+    def preview(self):
+        return format_html("<img src={} height={}/>",
+                           self.image.url,
+                           200,
+                           )
