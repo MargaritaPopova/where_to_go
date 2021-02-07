@@ -16,9 +16,12 @@ class Location(models.Model):
 
 
 class Image(models.Model):
-    order_no = models.SmallIntegerField(verbose_name='Позиция')
+    order_no = models.SmallIntegerField(default=0, blank=False, null=False)
     image = models.ImageField(verbose_name='Файл')
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
+
+    class Meta(object):
+        ordering = ['order_no']
 
     def __str__(self):
         return f'Image {self.order_no} for {self.location}'
@@ -28,3 +31,4 @@ class Image(models.Model):
                            self.image.url,
                            200,
                            )
+
