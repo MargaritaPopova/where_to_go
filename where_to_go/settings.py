@@ -68,8 +68,12 @@ WSGI_APPLICATION = 'where_to_go.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql' or 'django.db.backends.sqlite3',
+        'NAME': f"{os.getenv('SQL_USERNAME')}${os.getenv('SQL_DB_NAME')}" or
+                BASE_DIR / 'db.sqlite3',
+        'USER': os.getenv('SQL_USERNAME'),
+        'PASSWORD': os.getenv('SQL_PASSWORD'),
+        'HOST': os.getenv('SQL_HOST'),
     }
 }
 
