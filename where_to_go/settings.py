@@ -68,14 +68,10 @@ WSGI_APPLICATION = 'where_to_go.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql' or 'django.db.backends.sqlite3',
-        'NAME': 'margaritapopova$default',
-        'USER': 'margaritapopova',
-        'PASSWORD': 'dlfj38u8435hfu876476',
-        'HOST': 'margaritapopova.mysql.pythonanywhere-services.com',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
