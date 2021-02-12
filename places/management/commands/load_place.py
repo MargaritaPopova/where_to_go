@@ -19,6 +19,7 @@ class Command(BaseCommand):
             lat=location_dict['coordinates']['lat'],
             description_long=location_dict['description_long'],
             description_short=location_dict['description_short'],
+            properties_title=location_dict['title']
         )
         if created:
             for img in location_dict['imgs']:
