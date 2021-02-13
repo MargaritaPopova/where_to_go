@@ -13,7 +13,7 @@ SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env('DEBUG') or False
 
-ALLOWED_HOSTS = ['mpopova.pythonanywhere.com']
+ALLOWED_HOSTS = ['kudago.pythonanywhere.com']
 
 # Application definition
 
