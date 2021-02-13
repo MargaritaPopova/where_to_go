@@ -18,6 +18,7 @@ class LocationAdmin(admin.ModelAdmin):
         ('Идентификаторы', {'fields': ['properties_placeId', 'properties_title']}),
     ]
     inlines = [ImageInline]
+    search_fields = ['title']
 
 
 admin.site.register(Location, LocationAdmin)
