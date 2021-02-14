@@ -22,4 +22,3 @@ class LocationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Location, LocationAdmin)
-admin.site.register(Image)
