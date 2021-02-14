@@ -25,7 +25,7 @@ class Image(models.Model):
         ordering = ['order_no']
 
     def __str__(self):
-        return f'Image {self.order_no} for {self.location}'
+        return f'Image for {self.location}'
 
     def preview(self):
         return format_html("<img src={} height={}/>",
