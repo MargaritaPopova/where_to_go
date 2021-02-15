@@ -28,6 +28,12 @@ class Image(models.Model):
         return f'Image for {self.location}'
 
     def preview(self):
+        """
+        Метод для отображения миниатюр фото в панели администрирования
+
+        :return: html с тегом <img> и заданным стилем (макс. высота 200px)
+
+        """
         return format_html("<img src={} height={}/>",
                            self.image.url,
                            200,

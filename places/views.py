@@ -6,6 +6,15 @@ import json
 
 
 def get_detailsUrl(location):
+    """
+
+    Возвращает словарь с данными о локации в нужном формате для поля detailsUrl в данных geo-json
+
+    :param location: объект Location
+
+    :return: dictionary
+
+    """
     imgs = Image.objects.filter(location=location)
     details_url = {
         "title": location.title,
@@ -21,6 +30,15 @@ def get_detailsUrl(location):
 
 
 def convert_to_geojson(location):
+    """
+
+    Возвращает словарь с данными geo-json для конкретной локации
+
+    :param location: Объект Location
+
+    :return: dictionary
+
+    """
     get_detailsUrl(location)
     geo_dict = \
         {
@@ -39,6 +57,15 @@ def convert_to_geojson(location):
 
 
 def index(request):
+    """
+
+    Формирует список локаций в формате geo-json и рендерит его на страницу
+
+    :param request: request
+
+    :return: HTTP Response со списком локаций в теге <script>
+
+    """
     context = {}
     query = Location.objects.all()
 
@@ -52,6 +79,16 @@ def index(request):
 
 
 def json_api(request, pk):
+    """
+
+    Возвращает json для поля detailsUrl каждой локации
+
+    :param request: request
+    :param pk: id локации
+
+    :return: JsonResponse
+
+    """
     location = get_object_or_404(Location, id=pk)
     return JsonResponse(get_detailsUrl(location), json_dumps_params={
         'ensure_ascii': False,
