@@ -1,9 +1,42 @@
+"""
+Модели данных для локаций и картинок.
+
+:Location: Точка на карте
+:Image: Картинка для конкретной точки
+
+"""
 from django.db import models
 from django.utils.html import format_html
 from tinymce.models import HTMLField
 
 
 class Location(models.Model):
+    """
+    Представление данных локации
+
+    Attributes
+    ----------
+    :title: :str
+        Название места, строковое поле CharField
+    :description_short: :str
+        Короткое описание, строковое поле CharField
+    :description_long: :str
+        Полное описание, поле HTMLField с поддержкой форматирования
+    :lng: :str
+        Долгота, строковое поле CharField
+    :lat: :str
+        Широта, строковое поле CharField
+    :properties_title: :str
+        Название для поля properties, строковое поле CharField
+    :properties_placeId: :str
+        Уникальный идентификатор локации, строковое поле CharField
+
+    Methods
+    -------
+    :__str__(self):
+        Возвращает строковое представление модели
+
+    """
     title = models.CharField(max_length=200, verbose_name='Название для боковой панели')
     description_short = models.TextField(max_length=1000, verbose_name='Краткое описание')
     description_long = HTMLField(verbose_name='Полное описание', max_length=10000)
@@ -13,7 +46,7 @@ class Location(models.Model):
     properties_placeId = models.CharField(max_length=200, default='', verbose_name='Уникальный идентификатор локации')
 
     def __str__(self):
-        return self.title
+        return str(self.title)
 
 
 class Image(models.Model):
@@ -38,4 +71,3 @@ class Image(models.Model):
                            self.image.url,
                            200,
                            )
-
