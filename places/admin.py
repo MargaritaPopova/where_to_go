@@ -1,4 +1,4 @@
-from adminsortable2.admin import SortableAdminMixin, SortableInlineAdminMixin
+from adminsortable2.admin import SortableInlineAdminMixin
 from django.contrib import admin
 from .models import Location, Image
 
