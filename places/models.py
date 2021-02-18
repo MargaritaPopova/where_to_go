@@ -67,7 +67,5 @@ class Image(models.Model):
         :return: html с тегом <img> и заданным стилем (макс. высота 200px)
 
         """
-        return format_html("<img src={} height={}/>",
-                           self.image.url,
-                           200,
-                           )
+        return format_html("<img src={} height={}/>", self.image.url, 200)
+
