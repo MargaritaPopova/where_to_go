@@ -52,7 +52,7 @@ class Location(models.Model):
 
 
 class Image(models.Model):
-    order_no = models.SmallIntegerField(default=0, blank=False, null=False)
+    order_no = models.SmallIntegerField(default=0)
     image = models.ImageField(verbose_name='Файл')
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
 
