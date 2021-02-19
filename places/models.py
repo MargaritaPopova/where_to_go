@@ -5,6 +5,8 @@
 :Image: Картинка для конкретной точки
 
 """
+import uuid
+
 from django.db import models
 from django.utils.html import format_html
 from tinymce.models import HTMLField
@@ -38,12 +40,12 @@ class Location(models.Model):
 
     """
     title = models.CharField(max_length=200, verbose_name='Название для боковой панели')
-    description_short = models.CharField(max_length=1000, verbose_name='Краткое описание')
-    description_long = HTMLField(verbose_name='Полное описание')
+    short_description = models.CharField(max_length=1000, verbose_name='Краткое описание')
+    long_description = HTMLField(verbose_name='Полное описание')
     lng = models.FloatField(verbose_name='Долгота')
     lat = models.FloatField(verbose_name='Широта')
     properties_title = models.CharField(max_length=200, default='', verbose_name='Название точки на карте')
-    properties_placeId = models.CharField(max_length=200, default='', verbose_name='Уникальный идентификатор локации')
+    properties_placeId = models.UUIDField(default=uuid.uuid4, editable=False, verbose_name='Уникальный идентификатор локации')
 
     def __str__(self):
         return str(self.title)
