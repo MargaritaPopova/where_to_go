@@ -23,8 +23,8 @@ def get_detailsUrl(location):
     details_url = {
         "title": location.title,
         "imgs": [img.image.url for img in imgs],
-        "description_short": location.description_short,
-        "description_long": location.description_long,
+        "description_short": location.short_description,
+        "description_long": location.long_description,
         "coordinates": {
             "lng": location.lng,
             "lat": location.lat
@@ -49,11 +49,11 @@ def convert_to_geojson(location):
             "type": "Feature",
             "geometry": {
                 "type": "Point",
-                "coordinates": [float(location.lng), float(location.lat)]
+                "coordinates": [location.lng, location.lat]
             },
             "properties": {
                 "title": location.properties_title,
-                "placeId": location.properties_placeId,
+                "placeId": str(location.properties_placeId),
                 "detailsUrl": reverse('places:location_json', kwargs={'pk': location.id})
             }
         }

@@ -20,18 +20,18 @@ class Location(models.Model):
     ----------
     :title: :str
         Название места, строковое поле CharField
-    :description_short: :str
+    :short_description: :str
         Короткое описание, строковое поле CharField
-    :description_long: :str
+    :long_description: :str
         Полное описание, поле HTMLField с поддержкой форматирования
     :lng: :str
-        Долгота, строковое поле CharField
+        Долгота, поле FloatField
     :lat: :str
-        Широта, строковое поле CharField
+        Широта, поле FloatField
     :properties_title: :str
         Название для поля properties, строковое поле CharField
-    :properties_placeId: :str
-        Уникальный идентификатор локации, строковое поле CharField
+    :properties_placeId: :uuid
+        Уникальный идентификатор локации, поле UUIDField
 
     Methods
     -------
@@ -40,7 +40,7 @@ class Location(models.Model):
 
     """
     title = models.CharField(max_length=200, verbose_name='Название для боковой панели')
-    short_description = models.CharField(max_length=1000, verbose_name='Краткое описание')
+    short_description = models.TextField(verbose_name='Краткое описание')
     long_description = HTMLField(verbose_name='Полное описание')
     lng = models.FloatField(verbose_name='Долгота')
     lat = models.FloatField(verbose_name='Широта')

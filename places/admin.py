@@ -10,15 +10,13 @@ class ImageInline(SortableInlineAdminMixin, admin.TabularInline):
     readonly_fields = ("preview",)
 
 
+@admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ('title',)}),
         ('Координаты', {'fields': ('lng', 'lat',)}),
-        ('Описание', {'fields': ('description_short', 'description_long')}),
-        ('Идентификаторы', {'fields': ('properties_placeId', 'properties_title')}),
+        ('Описание', {'fields': ('short_description', 'long_description')}),
+        ('Идентификаторы', {'fields': ('properties_title',)}),
     ]
     inlines = [ImageInline]
     search_fields = ['title']
-
-
-admin.site.register(Location, LocationAdmin)
