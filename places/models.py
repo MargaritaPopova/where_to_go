@@ -48,7 +48,7 @@ class Location(models.Model):
     properties_placeId = models.UUIDField(default=uuid.uuid4, editable=False, verbose_name='Уникальный идентификатор локации')
 
     def __str__(self):
-        return str(self.title)
+        return self.title
 
 
 class Image(models.Model):
