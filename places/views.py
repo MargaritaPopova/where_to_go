@@ -26,8 +26,8 @@ def get_detailsUrl(location):
         "description_short": location.description_short,
         "description_long": location.description_long,
         "coordinates": {
-            "lng": float(location.lng),
-            "lat": float(location.lat)
+            "lng": location.lng,
+            "lat": location.lat
         }
     }
     return details_url

@@ -40,8 +40,8 @@ class Location(models.Model):
     title = models.CharField(max_length=200, verbose_name='Название для боковой панели')
     description_short = models.CharField(max_length=1000, verbose_name='Краткое описание')
     description_long = HTMLField(verbose_name='Полное описание')
-    lng = models.CharField(max_length=30, verbose_name='Долгота')
-    lat = models.CharField(max_length=30, verbose_name='Широта')
+    lng = models.FloatField(verbose_name='Долгота')
+    lat = models.FloatField(verbose_name='Широта')
     properties_title = models.CharField(max_length=200, default='', verbose_name='Название точки на карте')
     properties_placeId = models.CharField(max_length=200, default='', verbose_name='Уникальный идентификатор локации')
 
