@@ -23,11 +23,12 @@ class Command(BaseCommand):
             location_dict = requests.get(link).json()
             location, created = Location.objects.get_or_create(
                 title=location_dict['title'],
-                lng=location_dict['coordinates']['lng'],
-                lat=location_dict['coordinates']['lat'],
-                long_description=location_dict['description_long'],
-                short_description=location_dict['description_short'],
-                properties_title=location_dict['title']
+                defaults={
+                    'lng': location_dict['coordinates']['lng'],
+                    'lat': location_dict['coordinates']['lat'],
+                    'long_description': location_dict['description_long'],
+                    'short_description': location_dict['description_short'],
+                    'properties_title': location_dict['title']}
             )
             if created:
                 for img in location_dict['imgs']:
@@ -39,11 +40,10 @@ class Command(BaseCommand):
                     )
                     if created:
                         loc_img.image.save(filename, img_file, save=True)
-
                 self.stdout.write(self.style.SUCCESS(f'Successfully read file {link} \n'
                                                      f'Created Location object: {location.title}'))
             else:
-                self.stdout.write(self.style.WARNING(f'Location {location.title} already exists, link ignored.'))
+                self.stdout.write(self.style.WARNING(f'Location {location.title} already exists, defaults updated.'))
         except (JSONDecodeError, RequestException):
             self.stdout.write(
                 self.style.ERROR(f'Link {link} is incorrect or contains wrong input format, ignored.'))
