@@ -39,7 +39,7 @@ class Location(models.Model):
         Возвращает строковое представление модели
 
     """
-    title = models.CharField(max_length=200, verbose_name='Название для боковой панели')
+    title = models.CharField(max_length=200, verbose_name='Название для боковой панели', unique=True)
     short_description = models.TextField(verbose_name='Краткое описание')
     long_description = HTMLField(verbose_name='Полное описание')
     lng = models.FloatField(verbose_name='Долгота')
@@ -54,7 +54,7 @@ class Location(models.Model):
 class Image(models.Model):
     order_no = models.SmallIntegerField(default=0)
     image = models.ImageField(verbose_name='Файл')
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='loc_imgs')
 
     class Meta(object):
         ordering = ['order_no']
