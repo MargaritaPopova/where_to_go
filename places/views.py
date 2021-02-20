@@ -6,7 +6,7 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from .models import Location, Image
+from .models import Location
 
 
 def get_detailsUrl(location):
@@ -19,7 +19,7 @@ def get_detailsUrl(location):
     :return: dictionary
 
     """
-    imgs = Image.objects.filter(location=location)
+    imgs = location.loc_imgs.all()
     details_url = {
         "title": location.title,
         "imgs": [img.image.url for img in imgs],
