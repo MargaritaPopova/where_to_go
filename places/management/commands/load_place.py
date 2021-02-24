@@ -45,8 +45,7 @@ class Command(BaseCommand):
                     if created:
                         loc_img.image.save(filename, img_file, save=True)
                 self.stdout.write(self.style.SUCCESS(f'Successfully read file {link}'
-                                                     f'Created Location object: {location.title} \n'
-                                                     f'Images uploaded to: {settings.MEDIA_ROOT} \n'))
+                                                     f'Created Location object: {location.title} \n'))
             else:
                 self.stdout.write(self.style.WARNING(f'Location {location.title} already exists, defaults updated.'))
         except (JSONDecodeError, RequestException):
