@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = env('SECRET_KEY', 'REPLACE_ME')
 
-DEBUG = env('DEBUG', default=False)
+DEBUG = env.bool('DEBUG', default=False)
 
 ALLOWED_HOSTS = ['kudago.pythonanywhere.com', 'localhost', '127.0.0.1']
 
@@ -110,21 +110,22 @@ USE_TZ = True
 # AWESOME tutorial on how to serve static and media in production
 # https://www.ordinarycoders.com/blog/article/serve-django-static-and-media-files-in-production
 
-# do not remove these!
-AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', '')
-AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN', '')
-AWS_LOCATION = 'static'
+try:
+    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN')
+    AWS_LOCATION = 'static'
+    STATICFILES_STORAGE = env('STATICFILES_STORAGE')
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+    DEFAULT_FILE_STORAGE = env('DEFAULT_FILE_STORAGE')
+except EnvError:
+    STATIC_URL = '/static/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    MEDIA_URL = '/media/'
 
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-STATIC_URL = env.str('AWS_STATIC_URL', '/static/')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
-
-DEFAULT_FILE_STORAGE = 'where_to_go.storage_backends.MediaStorage'
 
 try:
     SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE')
