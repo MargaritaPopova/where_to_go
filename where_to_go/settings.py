@@ -9,11 +9,11 @@ env.read_env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env('SECRET_KEY', default='REPLACE_ME')
 
-DEBUG = env('DEBUG') or False
+DEBUG = env('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['kudago.pythonanywhere.com']
+ALLOWED_HOSTS = ['kudago.pythonanywhere.com', 'localhost', '127.0.0.1']
 
 # Application definition
 
@@ -111,25 +111,19 @@ USE_TZ = True
 # AWESOME tutorial on how to serve static and media in production
 # https://www.ordinarycoders.com/blog/article/serve-django-static-and-media-files-in-production
 
-AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
-
-AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN')
-
-AWS_LOCATION = 'static'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-DEFAULT_FILE_STORAGE = 'where_to_go.storage_backends.MediaStorage'
+if not env('MEDIA_ROOT'):
+    DEFAULT_FILE_STORAGE = 'where_to_go.storage_backends.MediaStorage'
 
-STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+STATIC_URL = env('AWS_STATIC_URL', default='/static/')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_HSTS_SECONDS = 31536000
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE')
+# CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE')
+# SECURE_HSTS_SECONDS = env('SECURE_HSTS_SECONDS', default=31536000)
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = env('SECURE_HSTS_INCLUDE_SUBDOMAINS')
+# SECURE_HSTS_PRELOAD = env('SECURE_HSTS_PRELOAD')
+# SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT')
