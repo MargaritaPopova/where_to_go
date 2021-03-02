@@ -39,9 +39,7 @@
       width: 100px;
     }
   </style>
-    {% autoescape off %}
-    <script id="places-geojson" type="application/json">{{ locations }}</script>
-    {% endautoescape %}
+    {{ locations | json_script:"places-geojson" }}
 
   <script id="app-template" type="text/template">
     <div v-bind:class="{'sidebar-content': 1, 'bg-white': selectedPlace, 'bg-secondary': !selectedPlace}">

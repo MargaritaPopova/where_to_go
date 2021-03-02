@@ -9,7 +9,7 @@ from django.urls import reverse
 from .models import Location
 
 
-def get_detailsUrl(location):
+def get_detailsUrl_field(location):
     """
 
     Возвращает словарь с данными о локации в нужном формате для поля detailsUrl в данных geo-json
@@ -19,8 +19,8 @@ def get_detailsUrl(location):
     :return: dictionary
 
     """
-    imgs = location.loc_imgs.all()
-    details_url = {
+    imgs = location.images.all()
+    details_url_data = {
         "title": location.title,
         "imgs": [img.image.url for img in imgs],
         "description_short": location.short_description,
@@ -30,7 +30,7 @@ def get_detailsUrl(location):
             "lat": location.lat
         }
     }
-    return details_url
+    return details_url_data
 
 
 def convert_to_geojson(location):
@@ -43,8 +43,7 @@ def convert_to_geojson(location):
     :return: dictionary
 
     """
-    get_detailsUrl(location)
-    geo_dict = \
+    location_serialized = \
         {
             "type": "Feature",
             "geometry": {
@@ -53,11 +52,11 @@ def convert_to_geojson(location):
             },
             "properties": {
                 "title": location.properties_title,
-                "placeId": str(location.properties_placeId),
+                "placeId": location.properties_placeId,
                 "detailsUrl": reverse('places:location_json', kwargs={'pk': location.id})
             }
         }
-    return geo_dict
+    return location_serialized
 
 
 def index(request):
@@ -71,13 +70,12 @@ def index(request):
 
     """
     context = {}
-    query = Location.objects.all()
+    all_locations = Location.objects.all()
 
-    locations = {
+    context['locations'] = {
       "type": "FeatureCollection",
-      "features": [convert_to_geojson(location) for location in query]
+      "features": [convert_to_geojson(location) for location in all_locations]
     }
-    context['locations'] = json.dumps(locations, ensure_ascii=False)
 
     return render(request, 'places/index.html', context)
 
@@ -94,7 +92,7 @@ def json_api(request, pk):
 
     """
     location = get_object_or_404(Location, id=pk)
-    return JsonResponse(get_detailsUrl(location), json_dumps_params={
+    return JsonResponse(get_detailsUrl_field(location), json_dumps_params={
         'ensure_ascii': False,
         'indent': 4,
     })
