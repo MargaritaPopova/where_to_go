@@ -2,7 +2,6 @@
 Функции обработки запросов
 
 """
-import json
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -20,7 +19,7 @@ def get_detailsUrl_field(location):
 
     """
     imgs = location.images.all()
-    details_url_data = {
+    details_url_field = {
         "title": location.title,
         "imgs": [img.image.url for img in imgs],
         "description_short": location.short_description,
@@ -30,7 +29,7 @@ def get_detailsUrl_field(location):
             "lat": location.lat
         }
     }
-    return details_url_data
+    return details_url_field
 
 
 def convert_to_geojson(location):
