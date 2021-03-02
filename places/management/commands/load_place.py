@@ -1,11 +1,8 @@
-from json.decoder import JSONDecodeError
 import requests
 import os
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
-from requests import RequestException
 from places.models import Location, Image
-from where_to_go import settings
 
 
 class Command(BaseCommand):
@@ -23,19 +20,22 @@ class Command(BaseCommand):
         parser.add_argument('source', type=str)
 
     def fill_data_from_link(self, link):
-        try:
-            location_dict = requests.get(link.strip()).json()
+        response = requests.get(link.strip())
+        if response.status_code == 200:
+            location_data = response.json()
+            if 'error' in location_data:
+                raise requests.exceptions.HTTPError(location_data['error'])
             location, created = Location.objects.get_or_create(
-                title=location_dict['title'],
+                title=location_data['title'],
                 defaults={
-                    'lng': location_dict['coordinates']['lng'],
-                    'lat': location_dict['coordinates']['lat'],
-                    'long_description': location_dict['description_long'],
-                    'short_description': location_dict['description_short'],
-                    'properties_title': location_dict['title']}
+                    'lng': location_data['coordinates']['lng'],
+                    'lat': location_data['coordinates']['lat'],
+                    'long_description': location_data['description_long'],
+                    'short_description': location_data['description_short'],
+                    'properties_title': location_data['title']}
             )
             if created:
-                for img in location_dict['imgs']:
+                for img in location_data['imgs']:
                     img_file = ContentFile(requests.get(img).content)
                     filename = img.split('/')[-1]
                     loc_img, created = Image.objects.get_or_create(
@@ -48,9 +48,9 @@ class Command(BaseCommand):
                                                      f'Created Location object: {location.title} \n'))
             else:
                 self.stdout.write(self.style.WARNING(f'Location {location.title} already exists, defaults updated.'))
-        except (JSONDecodeError, RequestException):
-            self.stdout.write(
-                self.style.ERROR(f'Link {link} is incorrect or contains wrong input format, ignored.'))
+        else:
+            self.stdout.write(self.style.ERROR(f'Server returned an error: {response.status_code}'))
+            response.raise_for_status()
 
     def handle(self, *args, **kwargs):
         source = str(kwargs['source'])
