@@ -32,7 +32,7 @@ def get_detailsUrl_field(location):
     return details_url_field
 
 
-def convert_to_geojson(location):
+def convert_location_to_geojson(location):
     """
 
     Возвращает словарь с данными geo-json для конкретной локации
