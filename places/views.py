@@ -5,6 +5,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+
 from .models import Location
 
 
@@ -73,7 +74,7 @@ def index(request):
 
     context['locations'] = {
       "type": "FeatureCollection",
-      "features": [convert_to_geojson(location) for location in all_locations]
+        "features": [convert_location_to_geojson(location) for location in all_locations]
     }
 
     return render(request, 'places/index.html', context)

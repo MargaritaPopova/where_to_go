@@ -1,9 +1,12 @@
 import os
 from pathlib import Path
+
 from environs import Env, EnvError
 
 env = Env()
 env.read_env()
+
+PROD = False
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -103,36 +106,39 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 # AWESOME tutorial on how to serve static and media in production
 # https://www.ordinarycoders.com/blog/article/serve-django-static-and-media-files-in-production
 
-try:
-    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN')
-    AWS_LOCATION = 'static'
-    STATICFILES_STORAGE = env('STATICFILES_STORAGE')
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
-    DEFAULT_FILE_STORAGE = env('DEFAULT_FILE_STORAGE')
-except EnvError:
-    STATIC_URL = '/static/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-    MEDIA_URL = '/media/'
-
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-
 try:
-    SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE')
-    CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE')
-    SECURE_HSTS_SECONDS = env('SECURE_HSTS_SECONDS', default=31536000)
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = env('SECURE_HSTS_INCLUDE_SUBDOMAINS')
-    SECURE_HSTS_PRELOAD = env('SECURE_HSTS_PRELOAD')
-    SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT')
+    AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN')
+    if AWS_S3_CUSTOM_DOMAIN:
+        PROD = True
 except EnvError:
     pass
+
+if PROD:
+    AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN')
+    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+    AWS_LOCATION = env('AWS_LOCATION')
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    DEFAULT_FILE_STORAGE = 'where_to_go.storage_backends.MediaStorage'
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+
+    # prod serves over https, so these settings are mandatory
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = True
+else:
+    STATIC_URL = '/static/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    MEDIA_URL = '/media/'
