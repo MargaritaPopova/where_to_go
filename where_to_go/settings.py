@@ -112,9 +112,8 @@ USE_TZ = True
 # AWESOME tutorial on how to serve static and media in production
 # https://www.ordinarycoders.com/blog/article/serve-django-static-and-media-files-in-production
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 try:
     AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN')
