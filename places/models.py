@@ -39,7 +39,7 @@ class Location(models.Model):
         Возвращает строковое представление модели
 
     """
-    title = models.CharField(max_length=200, verbose_name='Название для боковой панели', unique=True)
+    title = models.CharField(max_length=200, verbose_name='Название для боковой панели')
     short_description = models.TextField(verbose_name='Краткое описание', blank=True)
     long_description = HTMLField(verbose_name='Полное описание', blank=True)
     lng = models.FloatField(verbose_name='Долгота')
@@ -54,12 +54,12 @@ class Location(models.Model):
 
 
 class Image(models.Model):
-    order_no = models.SmallIntegerField(default=0, null=True)
+    position = models.SmallIntegerField(default=0, verbose_name='Позиция в списке', db_index=True)
     image = models.ImageField(verbose_name='Файл')
-    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='images')
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='images', verbose_name='Место')
 
     class Meta(object):
-        ordering = ['order_no']
+        ordering = ['position']
 
     def __str__(self):
         return f'Image for {self.location}'
@@ -71,5 +71,5 @@ class Image(models.Model):
         :return: html с тегом <img> и заданным стилем (макс. высота 200px)
 
         """
-        return format_html("<img src={} height={}/>", self.image.url, 200)
-
+        return format_html("<img src={} height={}>",
+                           self.image.url, 200)
