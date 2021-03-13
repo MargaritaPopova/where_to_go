@@ -1,7 +1,9 @@
-import requests
 import os
+
+import requests
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
+
 from places.models import Location, Image
 
 
@@ -21,7 +23,7 @@ class Command(BaseCommand):
 
     def fill_data_from_link(self, link):
         response = requests.get(link.strip())
-        if response.status_code == 200:
+        if response.ok:
             location_data = response.json()
             if 'error' in location_data:
                 raise requests.exceptions.HTTPError(location_data['error'])
