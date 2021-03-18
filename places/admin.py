@@ -17,7 +17,7 @@ class LocationAdmin(admin.ModelAdmin):
         (None, {'fields': ('title',)}),
         ('Координаты', {'fields': ('lng', 'lat',)}),
         ('Описание', {'fields': ('short_description', 'long_description')}),
-        ('Идентификаторы', {'fields': ('properties_title',)}),
+        ('Идентификаторы', {'fields': ('map_title',)}),
     ]
     inlines = [ImageInline]
     search_fields = ['title']

@@ -44,8 +44,8 @@ class Location(models.Model):
     long_description = HTMLField(verbose_name='Полное описание', blank=True)
     lng = models.FloatField(verbose_name='Долгота')
     lat = models.FloatField(verbose_name='Широта')
-    properties_title = models.CharField(max_length=200, default='', verbose_name='Название точки на карте')
-    properties_placeId = models.UUIDField(
+    map_title = models.CharField(max_length=200, default='', verbose_name='Название точки на карте')
+    identifier = models.UUIDField(
         default=uuid.uuid4, editable=False, verbose_name='Уникальный идентификатор локации'
     )
 

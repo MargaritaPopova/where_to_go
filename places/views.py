@@ -9,7 +9,7 @@ from django.urls import reverse
 from .models import Location
 
 
-def get_detailsUrl_field(location):
+def get_details_url_field(location):
     """
 
     Возвращает словарь с данными о локации в нужном формате для поля detailsUrl в данных geo-json
@@ -51,8 +51,8 @@ def convert_location_to_geojson(location):
                 "coordinates": [location.lng, location.lat]
             },
             "properties": {
-                "title": location.properties_title,
-                "placeId": location.properties_placeId,
+                "title": location.map_title,
+                "placeId": location.identifier,
                 "detailsUrl": reverse('places:location_json', kwargs={'pk': location.id})
             }
         }
@@ -92,7 +92,7 @@ def json_api(request, pk):
 
     """
     location = get_object_or_404(Location, id=pk)
-    return JsonResponse(get_detailsUrl_field(location), json_dumps_params={
+    return JsonResponse(get_details_url_field(location), json_dumps_params={
         'ensure_ascii': False,
         'indent': 4,
     })
