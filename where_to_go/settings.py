@@ -115,21 +115,20 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-try:
-    AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN')
-    if AWS_S3_CUSTOM_DOMAIN:
-        PROD = True
-except EnvError:
-    pass
-
-if PROD:
+if env('AWS_S3_CUSTOM_DOMAIN', ''):
+    PROD = True
     AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN')
     AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
     AWS_LOCATION = env('AWS_LOCATION')
     STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     DEFAULT_FILE_STORAGE = 'where_to_go.storage_backends.MediaStorage'
     STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+else:
+    STATIC_URL = '/static/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    MEDIA_URL = '/media/'
 
+if PROD:
     # prod serves over https, so these settings are mandatory
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -137,7 +136,3 @@ if PROD:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_SSL_REDIRECT = True
-else:
-    STATIC_URL = '/static/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-    MEDIA_URL = '/media/'
