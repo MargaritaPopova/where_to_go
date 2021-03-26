@@ -24,6 +24,7 @@
 Название папки со статикой на сервере Amazon S3 (например, ```'static'```)
 
 **Переменные для https**  
-Установить в значения:
-SECURE_HSTS_SECONDS = <значение в секундах, например 31536000>
-SECURE_HSTS_PRELOAD = True SECURE_SSL_REDIRECT = True
+Установить в значения:  
+SECURE_HSTS_SECONDS = <значение в секундах, например 31536000>  
+SECURE_HSTS_PRELOAD = True   
+SECURE_SSL_REDIRECT = True
